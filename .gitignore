@@ -1,0 +1,8 @@
+*
+!*/
+!*.*
+!Makefile
+/*.dSYM
+/*.o
+.DS_Store
+/.vscode/settings.json
