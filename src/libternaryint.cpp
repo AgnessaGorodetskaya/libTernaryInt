@@ -105,7 +105,7 @@ TernaryInt::to_decimal() const // Преобразование в десятич
 {
     int64_t res = 0;
     int64_t power = 1; // 3^i = 3^0
-    for (int i = 0; i < BITS - 1; ++i) {
+    for (int i = 0; i < BITS && power > 0; ++i) {
         bool m = (_minus >> i) & 1;
         bool p = (_plus >> i) & 1;
         if (m) {
