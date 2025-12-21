@@ -23,10 +23,31 @@ int main(void)
     std::cout << "A*B = " << c << ' ' << int64_t(c) << std::endl << std::endl;
 
     a = 1003;
-    b = 5;
+    b = 5; // 201 -2
     std::cout << "  A = " << a << ' ' << int64_t(a) << std::endl;
     std::cout << "  B = " << b << ' ' << int64_t(b) << std::endl;
     Ternary::TernaryInt q, r;
+    Ternary::TernaryInt::divmod(a, b, q, r); // получение частного и остатка одной операцией
+    std::cout << "A/B = " << q << ' ' << int64_t(q) << ' ' << int64_t(r) << std::endl;
+
+    a = -1003;
+    b = 5; // -201 +2
+    std::cout << "  A = " << a << ' ' << int64_t(a) << std::endl;
+    std::cout << "  B = " << b << ' ' << int64_t(b) << std::endl;
+    Ternary::TernaryInt::divmod(a, b, q, r); // получение частного и остатка одной операцией
+    std::cout << "A/B = " << q << ' ' << int64_t(q) << ' ' << int64_t(r) << std::endl;
+
+    a = -1003;
+    b = -5; // 201 +2
+    std::cout << "  A = " << a << ' ' << int64_t(a) << std::endl;
+    std::cout << "  B = " << b << ' ' << int64_t(b) << std::endl;
+    Ternary::TernaryInt::divmod(a, b, q, r); // получение частного и остатка одной операцией
+    std::cout << "A/B = " << q << ' ' << int64_t(q) << ' ' << int64_t(r) << std::endl;
+
+    a = 1003;
+    b = -5; // -201 -2
+    std::cout << "  A = " << a << ' ' << int64_t(a) << std::endl;
+    std::cout << "  B = " << b << ' ' << int64_t(b) << std::endl;
     Ternary::TernaryInt::divmod(a, b, q, r); // получение частного и остатка одной операцией
     std::cout << "A/B = " << q << ' ' << int64_t(q) << ' ' << int64_t(r) << std::endl;
     q = a / b;  // когда остаток не нужен

@@ -212,61 +212,70 @@ void
 TernaryInt::divmod(const TernaryInt &dividend, const TernaryInt &divisor, TernaryInt &quotient,
                    TernaryInt &remainder) // деление с остатком
 {
-    // заглушка с конвертацией в десятичную, так как код ниже пока не работает
+    if (divisor.compare(0) == 0) {
+        std::fprintf(stderr, "Division by zero\n");
+        std::abort();
+    }
 
-    int64_t dividend_dec = dividend.to_decimal();
-    int64_t divisor_dec = divisor.to_decimal();
-    quotient = dividend_dec / divisor_dec;
-    remainder = dividend_dec % divisor_dec;
+    bool neg_divisor = (divisor.compare(0) < 0);
+    TernaryInt a = dividend, d = divisor.abs(), t_one = 1;
 
-    // if (divisor.compare(0) == 0) {
-    //     std::fprintf(stderr, "Division by zero\n");
-    //     std::abort();
-    // }
+    quotient._minus = quotient._plus = 0;
+    remainder._minus = remainder._plus = 0;
 
-    // // определяем знак результата
-    // bool neg_result = (dividend.compare(0) < 0) ^ (divisor.compare(0) < 0);
+    // идём по тритам сверху вниз
+    for (int i = BITS - 1; i >= 0; --i) {
+        // remainder *= 3 (сдвиг на один трит)
+        remainder._minus <<= 1;
+        remainder._plus <<= 1;
+        // remainder += трит (digit) из числителя
+        if ((a._plus >> i) & 1) {
+            remainder._plus |= 1;
+        } else if ((a._minus >> i) & 1) {
+            remainder._minus |= 1;
+        }
 
-    // TernaryInt a = dividend.abs();
-    // TernaryInt d = divisor.abs();
+        // quotient *= 3 (сдвиг на один трит)
+        quotient._minus <<= 1;
+        quotient._plus <<= 1;
 
-    // quotient._minus = quotient._plus = 0;
-    // remainder._minus = remainder._plus = 0;
+        if (remainder._plus | remainder._minus) {
+            // теперь надо определить, какой трит поставить в частное
+            // пробуем remainder >= divisor
+            if (remainder.compare(d) >= 0) {
+                remainder -= d;
+                quotient._plus |= 1; // q = +1
+                if (remainder.compare(d) >= 0) {
+                    remainder -= d;
+                    quotient += t_one;
+                }
+            }
+            // пробуем remainder <= -divisor
+            else if (remainder.compare(-d) <= 0) {
+                remainder += d;
+                quotient._minus |= 1; // q = -1
+                if (remainder.compare(-d) <= 0) {
+                    remainder += d;
+                    quotient -= t_one;
+                }
+            }
+        }
+    }
 
-    // // идём по тритам сверху вниз
-    // for (int i = BITS - 1; i >= 0; --i) {
+    // reminder должен остаться в пределах [-d/2 ; d/2]
+    TernaryInt rem2 = remainder * 2;
+    if (rem2.compare(d) > 0) {
+        remainder -= d;
+        quotient += 1;
+    } else if (rem2.compare(-d) < 0) {
+        remainder += d;
+        quotient -= 1;
+    }
 
-    //     // remainder *= 3 (сдвиг на один трит)
-    //     remainder._minus <<= 1;
-    //     remainder._plus <<= 1;
-
-    //     // remainder += трит (digit) из числителя
-    //     bool am = (a._minus >> i) & 1;
-    //     bool ap = (a._plus >> i) & 1;
-    //     if (ap) {
-    //         remainder += 1;
-    //     } else if (am) {
-    //         remainder -= 1;
-    //     }
-
-    //     // теперь надо определить, какой трит поставить в частное
-    //     // пробуем remainder >= divisor
-    //     if (remainder.compare(d) >= 0) {
-    //         remainder -= d;
-    //         quotient._plus |= (1ULL << i); // q_i = +1
-    //     }
-    //     // пробуем remainder <= -divisor
-    //     else if (remainder.compare(-d) <= 0) {
-    //         remainder += d;
-    //         quotient._minus |= (1ULL << i); // q_i = -1
-    //     }
-    //     // иначе q_i = 0
-    // }
-
-    // // установка знака результата
-    // if (neg_result) {
-    //     quotient = -quotient;
-    // }
+    // корректируем знак результата
+    if (neg_divisor) {
+        quotient = -quotient;
+    }
 }
 
 TernaryInt &
